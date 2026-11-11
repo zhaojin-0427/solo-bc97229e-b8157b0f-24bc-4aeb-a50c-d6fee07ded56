@@ -124,3 +124,28 @@ class ErrorResponse(BaseModel):
     invalid_records: list[InvalidRecordInfo] = Field(default_factory=list)
     conflicting_links: list[LinkInfo] = Field(default_factory=list)
     involved_records: list[str] = Field(default_factory=list)
+
+
+class CapacityErrorResponse(BaseModel):
+    """HTTP 429: both computation slots are busy; the request was not queued."""
+
+    error: Literal["capacity_exhausted"] = "capacity_exhausted"
+    message: str
+    max_concurrent_batches: int
+
+
+class TimeoutErrorResponse(BaseModel):
+    """HTTP 504: the batch exceeded its per-batch deadline and was terminated."""
+
+    error: Literal["batch_timeout"] = "batch_timeout"
+    message: str
+    timeout_seconds: float
+
+
+class UnavailableErrorResponse(BaseModel):
+    """HTTP 503: the isolated computation process exited abnormally."""
+
+    error: Literal["computation_unavailable"] = "computation_unavailable"
+    message: str
+    reason: str
+    exit_code: int | None = None

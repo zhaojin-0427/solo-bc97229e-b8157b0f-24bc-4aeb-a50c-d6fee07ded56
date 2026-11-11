@@ -6,4 +6,15 @@ services:
     image: scan-time-normalizer:latest
     ports:
       - "8000:8000"
+    environment:
+      # At most two batches are computed at the same time in this API process.
+      MAX_CONCURRENT_BATCHES: "2"
+      # Per-batch wall-clock deadline; a batch still running at 2 s is killed
+      # and answered with 504 (kept short so the interactive demo is snappy).
+      BATCH_TIMEOUT_SECONDS: "2"
+      # Demo seams: a record carrying one of these ids makes the isolated
+      # computation worker run past the deadline (429/504 demo) or exit hard
+      # (503 demo). The request/response schema itself is unchanged.
+      SLOW_BATCH_ID: "SLOW"
+      CRASH_BATCH_ID: "CRASH"
     restart: unless-stopped
